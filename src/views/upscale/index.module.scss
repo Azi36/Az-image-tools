@@ -1,0 +1,12 @@
+/* 图片放大页：共享骨架 + 紫色系频道色 */
+@import "../tool";
+
+.page {
+  --color-secondary: #7c3aed;
+  --color-secondary-hover: #6a2fd0;
+  --color-action-soft: color-mix(in srgb, var(--color-secondary) 10%, var(--color-surface));
+  --grad-brand: linear-gradient(135deg, #7c3aed, #c04ad4);
+  --blob-a: color-mix(in srgb, #7c3aed 24%, var(--color-surface));
+  --blob-b: color-mix(in srgb, #c04ad4 20%, var(--color-surface));
+  --blob-c: color-mix(in srgb, #ffb02e 18%, var(--color-surface));
+}

@@ -1,0 +1,33 @@
+/* 去水印页：共享骨架 + 暖橙系频道色（主站「分享」频道色） */
+@import "../tool";
+
+.page {
+  --color-secondary: #d96716;
+  --color-secondary-hover: #b8540f;
+  --color-action-soft: color-mix(in srgb, var(--color-secondary) 10%, var(--color-surface));
+  --grad-brand: linear-gradient(135deg, #e2742d, #d43f3f);
+  --blob-a: color-mix(in srgb, #e2742d 24%, var(--color-surface));
+  --blob-b: color-mix(in srgb, #d43f3f 18%, var(--color-surface));
+  --blob-c: color-mix(in srgb, #ffb02e 20%, var(--color-surface));
+}
+
+/* 画笔工具条 */
+.toolbarLabel { display: inline-flex; align-items: center; gap: 5px; }
+.brushRange { width: 140px; accent-color: var(--color-secondary); }
+.brushSize { min-width: 40px; color: var(--color-text-muted); font-size: 12px; }
+.toolbarHint { flex: 1; min-width: 200px; color: var(--color-text-muted); font-size: 12px; text-align: right; }
+
+/* 编辑器 */
+.editor { display: grid; gap: 16px; padding: 20px; align-content: center; justify-items: center; }
+.stage { position: relative; display: grid; max-width: 100%;
+  canvas { grid-area: 1 / 1; max-width: 100%; max-height: min(58vh, 560px); border-radius: var(--radius-md); border: 1px solid var(--color-border); }
+}
+.maskLayer { cursor: crosshair; touch-action: none; background: transparent; border-color: transparent !important; }
+.stageBusy { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 12px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-surface) 72%, transparent); backdrop-filter: blur(2px); color: var(--color-text-muted); font-size: 14px;
+  .progressBar { width: min(260px, 60vw); }
+}
+.stageError { margin: 0; color: var(--color-destructive); font-size: 13px; }
+
+@media (max-width: 680px) {
+  .toolbarHint { text-align: left; }
+}

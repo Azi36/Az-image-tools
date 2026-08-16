@@ -1,0 +1,14 @@
+/* footer：主站同款——品牌区 + 链接列 + meta 行 + 幽灵大字 */
+.footer { position: relative; padding: 36px max(24px, calc((100vw - 1180px) / 2)) 16px; border-top: 1px solid var(--color-border); background: var(--color-surface); overflow: hidden; }
+.brand { text-decoration: none; }
+.footerGrid { display: flex; align-items: flex-start; justify-content: space-between; gap: 40px; }
+.footerBrand { display: grid; gap: 10px; justify-items: start; }
+.footerTag { margin: 0; color: var(--color-text-muted); font-size: 13px; }
+.footerCols { display: flex; gap: 22px; align-items: center; padding-top: 4px; a { color: var(--color-text-muted); text-decoration: none; font-size: 13px; font-weight: 600; transition: color .2s var(--ease); } a:hover { color: var(--color-secondary); } }
+.footerMeta { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; gap: 16px; color: var(--color-text-muted); font-size: 12px; a { color: var(--color-text-muted); text-decoration: none; transition: color .2s var(--ease); } a:hover { color: var(--color-secondary); } }
+.footerGhost { margin: 18px 0 -34px; text-align: center; font-size: clamp(64px, 13vw, 150px); font-weight: 800; letter-spacing: .06em; line-height: 1; color: var(--color-surface-muted); user-select: none; pointer-events: none; }
+
+@media (max-width: 680px) {
+  .footerGrid { flex-direction: column; gap: 18px; }
+  .footerCols { flex-wrap: wrap; }
+}

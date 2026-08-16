@@ -1,0 +1,42 @@
+.page { min-height: 100vh; display: flex; flex-direction: column; overflow: clip; }
+.page main { flex: 1; }
+
+/* ---------- 极光装饰背景：主站同款三团光 + 点阵 ---------- */
+.decor { position: absolute; inset: 0 0 auto 0; height: 560px; overflow: hidden; pointer-events: none; z-index: -1;
+  i { position: absolute; border-radius: 50%; filter: blur(80px); opacity: .5; }
+  i:nth-child(1) { width: 480px; height: 480px; left: -120px; top: -180px; background: radial-gradient(circle, var(--blob-a), transparent 65%); animation: blobFloat 14s ease-in-out infinite; }
+  i:nth-child(2) { width: 420px; height: 420px; right: -80px; top: -120px; background: radial-gradient(circle, var(--blob-b), transparent 65%); animation: blobFloat 18s ease-in-out infinite reverse; }
+  i:nth-child(3) { width: 320px; height: 320px; left: 40%; top: 40px; background: radial-gradient(circle, var(--blob-c), transparent 65%); opacity: .35; animation: blobFloat 22s ease-in-out infinite; }
+  span { position: absolute; inset: 0; background-image: radial-gradient(var(--color-border) 1px, transparent 1px); background-size: 22px 22px; mask-image: linear-gradient(180deg, rgba(0,0,0,.5), transparent 75%); -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.5), transparent 75%); }
+}
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, 24px) scale(1.06); }
+  66% { transform: translate(-24px, 12px) scale(.97); }
+}
+
+.hero { position: relative; padding: 36px 24px 56px; }
+.heroCopy { width: min(760px, 100%); margin: 0 auto 26px; text-align: center; }
+.heroCopy h1 { margin: 12px 0 8px; background: var(--grad-brand); background-clip: text; -webkit-background-clip: text; color: transparent; font-size: clamp(30px, 3.6vw, 40px); line-height: 1.12; font-weight: 800; letter-spacing: -.01em; }
+.heroCopy > p { max-width: 680px; margin: 0 auto; color: var(--color-text-muted); font-size: 15px; line-height: 1.6; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--color-secondary); font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+
+/* 工作台：干净的卡片，没有标题栏 */
+.workspace { position: relative; width: min(1180px, 100%); margin: 0 auto; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: 0 24px 70px rgba(0, 0, 0, .12); overflow: hidden; }
+.workbench { height: clamp(480px, calc(100vh - 320px), 760px); display: flex; background: var(--color-surface); > :first-child { flex: 1; min-width: 0; } }
+
+/* 窄屏抽屉入口：悬浮在工作台右下角 */
+.mobileOptions { display: none; position: absolute; right: 16px; bottom: 16px; z-index: 5; width: 48px; height: 48px; place-items: center; border: 1px solid var(--color-border); border-radius: var(--radius-full); color: #fff; background: var(--color-secondary); box-shadow: var(--shadow-menu); }
+.mobileOptions:hover { background: var(--color-secondary-hover); }
+
+@media (max-width: 980px) {
+  .heroCopy { text-align: left; }
+  .mobileOptions { display: grid; }
+}
+
+@media (max-width: 680px) {
+  .hero { padding: 24px 16px 44px; }
+  .heroCopy { margin-bottom: 16px; }
+  .heroCopy h1 { font-size: 30px; }
+  .workbench { height: clamp(430px, calc(100vh - 280px), 640px); }
+}

@@ -1,0 +1,12 @@
+/* 背景移除页：共享骨架 + 青绿系频道色（主站「推荐」频道色） */
+@import "../tool";
+
+.page {
+  --color-secondary: #00953a;
+  --color-secondary-hover: #007a30;
+  --color-action-soft: color-mix(in srgb, var(--color-secondary) 10%, var(--color-surface));
+  --grad-brand: linear-gradient(135deg, #00a32a, #0aa5a5);
+  --blob-a: color-mix(in srgb, #00a32a 24%, var(--color-surface));
+  --blob-b: color-mix(in srgb, #0aa5a5 20%, var(--color-surface));
+  --blob-c: color-mix(in srgb, #ffb02e 18%, var(--color-surface));
+}
