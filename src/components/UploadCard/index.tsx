@@ -6,7 +6,7 @@ import { gstate } from "@/global";
 import { ImageInput } from "../ImageInput";
 import { state } from "./state";
 import { createImageList } from "@/engines/transform";
-import { getFilesFromEntry, getFilesFromHandle, isSupportedType } from "@/functions";
+import { getFilesFromEntry, getFilesFromHandle } from "@/functions";
 import { sprintf } from "sprintf-js";
 import { Mimes } from "@/mimes";
 import { Images, LockKeyhole } from "lucide-react";
@@ -58,13 +58,11 @@ export const UploadCard = observer(() => {
         const list = event.dataTransfer?.files;
         for (let index = 0; index < list.length; index++) {
           const file = list.item(index);
-          if (file && isSupportedType(file)) {
-            files.push(file);
-          }
+          if (file) files.push(file);
         }
       }
 
-      files.length > 0 && createImageList(files);
+      if (files.length > 0) createImageList(files);
     };
 
     const target = dragRef.current!;

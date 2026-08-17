@@ -12,7 +12,7 @@ async function isAvifSupport() {
   try {
     await canvas.convertToBlob({ type: MimeAvif });
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 }

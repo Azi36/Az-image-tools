@@ -122,12 +122,8 @@ export async function getFilesFromEntry(
   if (entry.isFile) {
     const fileEntry = entry as FileSystemFileEntry;
     return new Promise<Array<File>>((resolve) => {
-      fileEntry.file(
-        (result) => {
-          resolve(isSupportedType(result) ? [result] : []);
-        },
-        () => [],
-      );
+      // 不在这里过滤：统一交给 createImageList，才能统计出「忽略了几个」
+      fileEntry.file((result) => resolve([result]), () => []);
     });
   }
 
@@ -161,7 +157,7 @@ export async function getFilesFromHandle(
   if (handle.kind === "file") {
     const fileHandle = handle as FileSystemFileHandle;
     const file = await fileHandle.getFile();
-    return isSupportedType(file) ? [file] : [];
+    return [file];
   }
 
   // If handle is a directory
@@ -268,4 +264,66 @@ export function hasImageInClipboard(event: ClipboardEvent): boolean {
   }
   
   return false;
+}
+
+/**
+ * 浏览器是否支持把图片写进剪贴板
+ * （Firefox 到目前为止只支持写文本，所以按钮要按能力显示）
+ */
+export function canCopyImage(): boolean {
+  return (
+    typeof ClipboardItem !== "undefined" &&
+    typeof navigator !== "undefined" &&
+    Boolean(navigator.clipboard?.write)
+  );
+}
+
+/**
+ * 把图片写进剪贴板，返回是否成功
+ * 注意：必须在用户手势的调用栈里执行，否则浏览器会拒绝
+ */
+export async function copyImageToClipboard(blob: Blob): Promise<boolean> {
+  if (!canCopyImage()) return false;
+  try {
+    // 剪贴板对 PNG 支持最好，其它格式先转一道
+    let payload = blob;
+    if (blob.type !== "image/png") {
+      const bitmap = await createImageBitmap(blob);
+      const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+      canvas.getContext("2d")!.drawImage(bitmap, 0, 0);
+      bitmap.close();
+      payload = await canvas.convertToBlob({ type: "image/png" });
+    }
+    await navigator.clipboard.write([
+      new ClipboardItem({ "image/png": payload }),
+    ]);
+    return true;
+  } catch (error) {
+    console.error("[Az-im] copy to clipboard failed:", error);
+    return false;
+  }
+}
+
+/**
+ * 等比缩小到长边不超过 maxEdge，返回 PNG Blob
+ * 已经在范围内就原样返回
+ */
+export async function shrinkImage(blob: Blob, maxEdge: number): Promise<Blob> {
+  const bitmap = await createImageBitmap(blob);
+  const longEdge = Math.max(bitmap.width, bitmap.height);
+  if (longEdge <= maxEdge) {
+    bitmap.close();
+    return blob;
+  }
+
+  const rate = maxEdge / longEdge;
+  const width = Math.max(1, Math.round(bitmap.width * rate));
+  const height = Math.max(1, Math.round(bitmap.height * rate));
+  const canvas = new OffscreenCanvas(width, height);
+  const context = canvas.getContext("2d")!;
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+  return canvas.convertToBlob({ type: "image/png" });
 }

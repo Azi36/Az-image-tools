@@ -20,7 +20,8 @@ Azi36 的在线批量图片压缩工具。压缩、转换、缩放、裁剪，�
 npm install
 npm run dev          # 开发服务器 http://localhost:3000
 npm test             # 测试
-npm run lint         # ESLint
+npm run typecheck    # TypeScript 检查
+npm run lint         # ESLint（flat config，见 eslint.config.mjs）
 npm run build:pages  # 静态导出到 out/，用于 GitHub Pages 等静态托管
 ```
 

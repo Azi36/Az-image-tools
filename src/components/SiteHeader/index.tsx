@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { observer } from "mobx-react-lite";
 import { Moon, Sun } from "lucide-react";
 import style from "./index.module.scss";
 import { Logo } from "@/components/Logo";
+import { NavAvatar } from "@/components/NavAvatar";
 
 // 与主站同款的主题切换：显式写入 azi-theme，深浅两态间切换
 function getEffectiveTheme(): "dark" | "light" {
@@ -31,9 +33,9 @@ const ThemeToggle = () => {
   );
 };
 
-// 站内工具导航：主页=回主站，其余是本站工具页，后面的工具进场再加
+// 站内工具导航：全是本站工具页，走 next/link 才有客户端切换和预取。
+// 回主站的入口放在页脚，不占导航胶囊的位置
 export const navItems = [
-  { key: "main", label: "主页", href: "https://azi36.com" },
   { key: "compress", label: "图片压缩", href: "/" },
   { key: "matting", label: "背景移除", href: "/matting/" },
   { key: "upscale", label: "图片放大", href: "/upscale/" },
@@ -47,25 +49,23 @@ type SiteHeaderProps = {
 export const SiteHeader = observer(({ active }: SiteHeaderProps) => {
   return (
     <header className={style.header}>
-      <a href="/" className={style.brand} aria-label="Az-im home"><Logo /></a>
+      <Link href="/" className={style.brand} aria-label="Az-im home"><Logo /></Link>
       <nav className={style.mainNav} aria-label="站内导航">
         {navItems.map((item) => (
-          <a
+          <Link
             key={item.key}
             href={item.href}
             className={item.key === active ? style.active : ""}
             aria-current={item.key === active ? "page" : undefined}
           >
             {item.label}
-          </a>
+          </Link>
         ))}
       </nav>
       <div className={style.navSide}>
         <span className={style.navStatus}><em>😊</em>Keep Smile ~</span>
         <ThemeToggle />
-        <a className={style.navAvatar} href="https://github.com/Azi36" target="_blank" rel="noreferrer" aria-label="GitHub">
-          <img src="/avatar.png" alt="Azi36" />
-        </a>
+        <NavAvatar />
       </div>
     </header>
   );

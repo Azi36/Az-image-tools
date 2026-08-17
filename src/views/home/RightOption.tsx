@@ -3,6 +3,7 @@ import { toJS } from "mobx";
 import { Check, RotateCcw, X } from "lucide-react";
 import style from "./RightOption.module.scss";
 import { CompressOption } from "@/components/CompressOption";
+import { PresetBar } from "@/components/PresetBar";
 import { gstate } from "@/global";
 import { DefaultCompressOption, homeState } from "@/states/home";
 import { useEffect } from "react";
@@ -62,6 +63,7 @@ export const RightOption = observer(() => {
       {showOption && <button type="button" className={style.backdrop} aria-label="Close settings" onClick={() => { homeState.showOption = false; }} />}
       <aside className={`${style.side} ${showOption ? style.open : ""}`} aria-label={gstate.locale?.optionPannel.help}>
         <button type="button" className={style.close} aria-label="Close settings" onClick={() => { homeState.showOption = false; }}><X size={20} /></button>
+        <PresetBar />
         <div className={style.scroll}><CompressOption /></div>
         <footer>
           <button type="button" className="button" disabled={disabled} onClick={reset}><RotateCcw size={17} />{gstate.locale?.optionPannel.resetBtn}</button>

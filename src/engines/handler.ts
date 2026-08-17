@@ -18,6 +18,8 @@ import { JpegImage } from "./JpegImage";
 export interface MessageData {
   info: ImageInfo;
   option: CompressOption;
+  /** WorkerPool 用来记账在途任务，业务逻辑不关心 */
+  jobId: number;
 }
 
 export interface OutputMessageData extends Omit<ImageInfo, "name" | "blob" | "bitmap"> {
@@ -26,6 +28,14 @@ export interface OutputMessageData extends Omit<ImageInfo, "name" | "blob" | "bi
   error?: string;
   preservedOriginal?: boolean;
 }
+
+/** 认不出格式：worker 必须回报，否则这张图会一直停在「处理中」 */
+export const ERROR_UNSUPPORTED_TYPE = "unsupported-type";
+/** worker 整个崩了时给这张图打的标记 */
+export const ERROR_PROCESS_CRASHED = "process-crashed";
+
+/** worker 回给主线程的消息：结果 + 原样带回的 jobId */
+export type WorkerOutputMessage = OutputMessageData & { jobId: number };
 
 export type HandleMethod = "compress" | "preview";
 
@@ -80,7 +90,7 @@ export async function convert(
     let dimension = { width: 0, height: 0 };
     try {
       dimension = getSvgDimension(svgData);
-    } catch (error) {}
+    } catch {}
     data.info.width = dimension.width;
     data.info.height = dimension.height;
 

@@ -1,41 +1,15 @@
 /**
- * 浏览器本地背景移除引擎
+ * 浏览器本地背景移除引擎（跑在 WorkerAi 里）
  * 双模型可选：U2-Netp（快）/ Silueta（好，U2-Net 压缩版），都是 Apache-2.0。
  * 图片全程不离开浏览器。
  */
 
-import { getSession, runSession, type AiProgress } from "./ai";
-
-export type MattingModelKey = "u2netp" | "silueta";
-
-export const MATTING_MODELS: Array<{
-  key: MattingModelKey;
-  label: string;
-  desc: string;
-  url: string;
-  sizeMB: number;
-  inputSize: number;
-  norm: "imagenet" | "half";
-}> = [
-  {
-    key: "u2netp",
-    label: "快速",
-    desc: "4.4MB · 秒出结果，日常够用",
-    url: "/models/u2netp.onnx",
-    sizeMB: 4.4,
-    inputSize: 320,
-    norm: "imagenet",
-  },
-  {
-    key: "silueta",
-    label: "高质量",
-    desc: "42MB · 细节更完整，处理更慢",
-    url: "/models/silueta.onnx",
-    sizeMB: 42,
-    inputSize: 320,
-    norm: "imagenet",
-  },
-];
+import { getSession, runSession } from "./ai";
+import {
+  MATTING_MODELS,
+  type AiProgress,
+  type MattingModelKey,
+} from "./ai-shared";
 
 /**
  * 移除图片背景，返回带透明通道的 PNG Blob

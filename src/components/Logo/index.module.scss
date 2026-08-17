@@ -16,10 +16,22 @@
       width: 100%;
       height: 100%;
       display: block;
+      /* 描边动画会短暂超出边界，别被圆角裁掉 */
+      overflow: visible;
     }
+
+    /* 每条山脊按自己的长度收放，两座山才会一样匀速地"长"出来 */
+    path { stroke-dasharray: var(--len); stroke-dashoffset: 0; }
+    circle { transform-box: fill-box; transform-origin: center; }
   }
 
-  &:hover .icon { transform: rotate(-8deg) scale(1.08); }
+  /* 只在 hover 图标时表演，hover 文字不触发 */
+  .icon:hover { transform: rotate(-8deg) scale(1.08); }
+
+  /* 小山先长，大山跟上，最后小太阳弹出来 */
+  .icon:hover path:nth-of-type(1) { animation: logoDraw .42s var(--ease) both; }
+  .icon:hover path:nth-of-type(2) { animation: logoDraw .5s .12s var(--ease) both; }
+  .icon:hover circle { animation: logoSun .5s .46s var(--ease) both; }
 
   .wordmark {
     color: var(--color-primary);
@@ -29,4 +41,25 @@
 
     b { color: var(--color-secondary); font-weight: 700; }
   }
+}
+
+@keyframes logoDraw {
+  from { stroke-dashoffset: var(--len); }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes logoSun {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .container .icon,
+  .container .icon:hover path,
+  .container .icon:hover circle {
+    transition: none;
+    animation: none;
+  }
+  .container .icon:hover { transform: none; }
 }

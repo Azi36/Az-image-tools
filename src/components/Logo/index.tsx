@@ -22,6 +22,7 @@ export const Logo = observer(({ iconSize = 26, title = "Az-im" }: LogoProps) => 
           {/* 两座山底部相接、互不穿插：小山在左，大山在右 */}
           <path
             d="M6.5 34l7-9.5 7 9.5"
+            style={{ "--len": 24 } as React.CSSProperties}
             fill="none"
             stroke="#fff"
             strokeWidth="5"
@@ -30,6 +31,7 @@ export const Logo = observer(({ iconSize = 26, title = "Az-im" }: LogoProps) => 
           />
           <path
             d="M20.5 34 30.5 15l10 19"
+            style={{ "--len": 43 } as React.CSSProperties}
             fill="none"
             stroke="#fff"
             strokeWidth="5"

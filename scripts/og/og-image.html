@@ -1,0 +1,100 @@
+<!--
+  分享卡片（og:image）的设计稿，改完用无头浏览器重新截一张：
+
+    chrome --headless=new --disable-gpu --hide-scrollbars       --force-device-scale-factor=1 --window-size=1200,630       --screenshot="<绝对路径>/public/og.jpg"       "file:///<绝对路径>/scripts/og/og-image.html"
+
+  截图按扩展名决定格式，用 .jpg 出来约 31KB，.png 约 376KB。
+  中文用的是本机字体（微软雅黑一类），只有渲染出来的图进仓库，不涉及字体分发。
+  改动后记得 public/og.jpg 也要一起提交。
+-->
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 96px;
+    /* Az-im 站标同款渐变，和主站蓝紫系一脉相承 */
+    background: linear-gradient(118deg, #2447e6 0%, #4b4ae4 46%, #7c5ce0 100%);
+    color: #fff;
+    font-family: "Segoe UI", -apple-system, "Microsoft YaHei", "Noto Sans SC", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 右上角柔光 + 点阵：沿用站内装饰的视觉语言 */
+  .glow {
+    position: absolute;
+    right: -140px; top: -180px;
+    width: 620px; height: 620px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,.22), rgba(255,255,255,0) 68%);
+  }
+  .dots {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.18) 1.5px, transparent 1.5px);
+    background-size: 26px 26px;
+    -webkit-mask-image: linear-gradient(160deg, rgba(0,0,0,.55), transparent 62%);
+  }
+
+  .content { position: relative; }
+
+  .mark { margin-bottom: 40px; margin-left: -2px; }
+
+  .wordmark {
+    font-size: 122px;
+    font-weight: 800;
+    letter-spacing: -.035em;
+    line-height: 1;
+  }
+
+  .tagline {
+    margin-top: 26px;
+    font-size: 42px;
+    font-weight: 500;
+    letter-spacing: .01em;
+    color: rgba(255,255,255,.95);
+  }
+
+  .meta {
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    font-size: 26px;
+    color: rgba(255,255,255,.78);
+  }
+  .meta .sep { color: rgba(255,255,255,.4); }
+  .meta .site { font-weight: 600; color: rgba(255,255,255,.92); }
+</style>
+</head>
+<body>
+  <div class="glow"></div>
+  <div class="dots"></div>
+
+  <div class="content">
+    <!-- 站标：山峦 + 小太阳，取自 public/favicon.svg -->
+    <svg class="mark" width="166" height="113" viewBox="4 10 39 26.5" fill="none">
+      <path d="M6.5 34l7-9.5 7 9.5" fill="none" stroke="white" stroke-width="5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M20.5 34 30.5 15l10 19" fill="none" stroke="white" stroke-width="5"
+            stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="12.5" cy="13.5" r="3.4" fill="#ffb02e"/>
+    </svg>
+
+    <div class="wordmark">Az-im</div>
+    <div class="tagline">把图片变轻一点。</div>
+
+    <div class="meta">
+      <span>压缩 · 背景移除 · 图片放大 · 去水印</span>
+      <span class="sep">|</span>
+      <span class="site">im.azi36.com</span>
+    </div>
+  </div>
+</body>
+</html>

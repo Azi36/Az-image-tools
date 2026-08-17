@@ -1,5 +1,5 @@
 /**
- * 浏览器本地图片放大引擎
+ * 浏览器本地图片放大引擎（跑在 WorkerAi 里）
  * 模型：Real-ESRGAN general-x4v3（BSD-3，约 4.7MB），固定 4 倍放大，
  * 2 倍档从 4 倍结果高质量缩回。
  *
@@ -7,10 +7,12 @@
  * 相邻块重叠 8px 消块缝，图像边缘用复制填充补齐窗口。
  */
 
-import { getSession, runSession, type AiProgress } from "./ai";
-
-export const UPSCALE_MODEL_URL = "/models/realesr-general-x4v3.onnx";
-export const MAX_UPSCALE_EDGE = 2000;
+import { getSession, runSession } from "./ai";
+import {
+  MAX_UPSCALE_EDGE,
+  UPSCALE_MODEL_URL,
+  type AiProgress,
+} from "./ai-shared";
 
 const SCALE = 4;
 const WIN = 128;          // 模型输入窗口
@@ -106,8 +108,8 @@ export async function upscaleImage(
 
       doneTiles += 1;
       onProgress?.({ stage: "run", percent: Math.round((doneTiles * 100) / totalTiles) });
-      // 让出主线程，进度条和页面保持响应
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      // 这里原本有个 setTimeout(0) 给主线程让路；现在整个循环跑在 worker 里，
+      // 主线程本来就不受影响，每块再等一次 timer clamp 纯属浪费（大图有几百块）
     }
   }
 

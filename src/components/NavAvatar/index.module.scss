@@ -1,0 +1,47 @@
+.avatar {
+  display: block;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: transparent;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: none; /* 拖拽甩头像时别被页面滚动抢走 */
+  transition: transform .25s var(--ease);
+  /* 狂点时别把周围文字全选中了 */
+  -webkit-user-select: none;
+  user-select: none;
+
+  img { display: block; width: 100%; height: 100%; object-fit: cover; }
+}
+
+.avatar:hover { transform: rotate(-8deg) scale(1.08); }
+
+.boom { animation: avatarPop .5s var(--ease); }
+
+@keyframes avatarPop {
+  30% { transform: scale(1.4) rotate(-10deg); }
+  60% { transform: scale(.75) rotate(6deg); }
+}
+
+/* 炸出来的碎片挂在 body 上，所以这些是全局定位的浮层 */
+.frag {
+  position: fixed;
+  z-index: 999;
+  font-size: 18px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.says {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar, .avatar:hover { transition: none; transform: none; }
+  .boom { animation: none; }
+}

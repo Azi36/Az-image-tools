@@ -25,6 +25,7 @@
   .backdrop { position: fixed; inset: 0; z-index: 60; display: block; border: 0; background: var(--color-overlay); }
   .side { position: fixed; z-index: 70; top: 0; right: 0; bottom: 0; width: min(400px, 100vw); transform: translateX(100%); transition: transform .25s ease; box-shadow: var(--shadow-menu); }
   .side.open { transform: translateX(0); }
-  .scroll { padding-top: 60px; }
+  /* 顶部让位给关闭按钮的活儿交给 PresetBar 了，它现在排在最上面 */
+  .scroll { padding-top: 18px; }
   .close { position: absolute; z-index: 1; top: 8px; right: 12px; display: grid; place-items: center; }
 }

@@ -10,6 +10,14 @@ export interface LocaleData {
   };
   errors: {
     animatedUnsupported: string;
+    unsupportedType: string;
+    processCrashed: string;
+  };
+  notice: {
+    ignoredFiles: string;
+    largeFiles: string;
+    duplicates: string;
+    stopped: string;
   };
   error404: {
     backHome: string;
@@ -28,6 +36,8 @@ export interface LocaleData {
     downloadOne: string;
     removeOne: string;
     reCompress: string;
+    stop: string;
+    packing: string;
   };
   columnTitle: {
     status: string;
@@ -93,6 +103,43 @@ export interface LocaleData {
     outputFormat: string;
     outputFormatPlaceholder: string;
     transparentFillDesc: string;
+  };
+  presets: {
+    label: string;
+    save: string;
+    namePlaceholder: string;
+    confirm: string;
+    cancel: string;
+    remove: string;
+    limitReached: string;
+    saved: string;
+    names: {
+      balanced: string;
+      wechat: string;
+      blog: string;
+      sharp: string;
+      extreme: string;
+    };
+  };
+  itemOption: {
+    title: string;
+    hint: string;
+    open: string;
+    apply: string;
+    cancel: string;
+    useGlobal: string;
+    badge: string;
+  };
+  listFilter: {
+    all: string;
+    error: string;
+    cancelled: string;
+    larger: string;
+    sortLabel: string;
+    sortDefault: string;
+    sortSize: string;
+    sortRate: string;
+    empty: string;
   };
   progress: {
     before: string;

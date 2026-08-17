@@ -13,6 +13,14 @@ const localeData: LocaleData = {
   },
   errors: {
     animatedUnsupported: "不支持压缩动画 AVIF/WebP 图片，已保留原文件。",
+    unsupportedType: "不支持的图片格式，已跳过这张。",
+    processCrashed: "处理这张图时出错了，点「重新压缩」可以重试。",
+  },
+  notice: {
+    ignoredFiles: "已忽略 %d 个不支持的文件",
+    largeFiles: "%d 个文件超过 50MB，压缩会比较慢",
+    duplicates: "已跳过 %d 个重复文件（同名同大小）",
+    stopped: "已停止。未完成的图片点「重新压缩」可以继续。",
   },
   uploadCard: {
     title: "选取图片到这里，支持拖拽图片和文件夹",
@@ -27,6 +35,8 @@ const localeData: LocaleData = {
     downloadOne: "保存图片",
     removeOne: "移除图片",
     reCompress: "重新压缩",
+    stop: "停止",
+    packing: "打包中 %d%%",
   },
   columnTitle: {
     status: "状态",
@@ -95,6 +105,43 @@ const localeData: LocaleData = {
   error404: {
     backHome: "返回首页",
     description: "抱歉，你访问的页面不存在~",
+  },
+  presets: {
+    label: "预设",
+    save: "存为预设",
+    namePlaceholder: "预设名称",
+    confirm: "保存",
+    cancel: "取消",
+    remove: "删除预设",
+    limitReached: "自定义预设最多 12 个，先删掉几个再存",
+    saved: "已保存预设「%s」",
+    names: {
+      balanced: "平衡",
+      wechat: "公众号配图",
+      blog: "网页配图",
+      sharp: "保清晰",
+      extreme: "极致压缩",
+    },
+  },
+  itemOption: {
+    title: "单独设置这张图",
+    hint: "只影响这一张，改完立刻重压它自己；整批的设置不受影响。",
+    open: "单独设置",
+    apply: "应用到这张",
+    cancel: "取消",
+    useGlobal: "改回跟随全局",
+    badge: "独立设置",
+  },
+  listFilter: {
+    all: "全部",
+    error: "失败",
+    cancelled: "已停止",
+    larger: "变大了",
+    sortLabel: "排序",
+    sortDefault: "添加顺序",
+    sortSize: "体积从大到小",
+    sortRate: "压缩效果最差在前",
+    empty: "没有符合条件的图片",
   },
   progress: {
     before: "压缩前",

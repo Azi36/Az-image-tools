@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { observer } from "mobx-react-lite";
-import { ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { runInAction } from "mobx";
+import { Info, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import style from "./index.module.scss";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { UploadCard } from "@/components/UploadCard";
 import { Compare } from "@/components/Compare";
+import { ItemOption } from "@/components/ItemOption";
 import { gstate } from "@/global";
 import { homeState } from "@/states/home";
 import { createImageList, useWorkerHandler } from "@/engines/transform";
@@ -22,6 +24,27 @@ const copy = {
 
 const Home = observer(() => {
   useWorkerHandler();
+  const notice = homeState.notice;
+  // observer 组件里直接读就是响应式的，不用再往 state 里搬一次
+  const hasImages = homeState.list.size > 0;
+
+  // 提示自动消失；用 id 做 key，同一句话再次触发也能重新计时
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(
+      () => runInAction(() => { homeState.notice = null; }),
+      4000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
+  // 纯前端工具，刷新即全丢：手里有图的时候拦一下
+  useEffect(() => {
+    if (!hasImages) return;
+    const confirmLeave = (event: BeforeUnloadEvent) => event.preventDefault();
+    window.addEventListener("beforeunload", confirmLeave);
+    return () => window.removeEventListener("beforeunload", confirmLeave);
+  }, [hasImages]);
 
   useEffect(() => {
     const handlePaste = async (event: ClipboardEvent) => {
@@ -64,6 +87,14 @@ const Home = observer(() => {
 
       <SiteFooter />
       {homeState.compareId !== null && <Compare />}
+      {/* key 让每次打开都拿到一份全新的草稿 */}
+      {homeState.editingKey !== null && <ItemOption key={homeState.editingKey} />}
+      {notice && (
+        <div key={notice.id} className={style.notice} role="status">
+          <Info size={17} />
+          <span>{notice.text}</span>
+        </div>
+      )}
     </div>
   );
 });

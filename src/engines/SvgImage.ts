@@ -1,6 +1,7 @@
 import { Mimes } from "@/mimes";
 import { ImageBase, ProcessOutput } from "./ImageBase";
-import { optimize } from "svgo/lib/svgo";
+// svgo v4 的浏览器入口；v3 的 "svgo/lib/svgo" 深路径在 v4 的 exports 里已不存在
+import { optimize } from "svgo/browser";
 import { applySvgDimension } from "./svgParse";
 import { AvifImage } from "./AvifImage";
 import { PngImage } from "./PngImage";

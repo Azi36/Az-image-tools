@@ -6,8 +6,9 @@ import { getImageMime, Mimes, OutputFormats } from "@/mimes";
 import { MAX_CANVAS_DIMENSION, PAPER_SIZES } from "@/engines/ImageBase";
 import { Select } from "@/components/Select";
 import { getCompressionOptionVisibility } from "@/options";
+import type { CompressOption as CompressOptionValue } from "@/engines/ImageBase";
 
-type ResizeMethod = typeof homeState.tempOption.resize.method;
+type ResizeMethod = CompressOptionValue["resize"]["method"];
 
 // 固定尺寸裁剪的快捷预设：常用交付尺寸一键填入
 const quickSizeData = [
@@ -53,12 +54,20 @@ function RangeField({ label, value, min, max, step, disabled, onChange }: RangeF
   );
 }
 
-export const CompressOption = observer(() => {
-  const disabled = homeState.hasTaskRunning();
+type CompressOptionProps = {
+  /** 要编辑的设置对象，默认是全局草稿；单张图调参时传那张图自己的副本 */
+  value?: CompressOptionValue;
+  /** 单张图调参时即便整批在跑也允许编辑 */
+  editable?: boolean;
+};
+
+export const CompressOption = observer(({ value, editable }: CompressOptionProps = {}) => {
+  const option = value ?? homeState.tempOption;
+  const disabled = editable ? false : homeState.hasTaskRunning();
   const locale = gstate.locale?.optionPannel;
-  const resize = homeState.tempOption.resize;
+  const resize = option.resize;
   const resizeMethod = resize.method;
-  const targetFormat = homeState.tempOption.format.target;
+  const targetFormat = option.format.target;
   const sourceMimes = Array.from(homeState.list.values(), (item) =>
     getImageMime({ name: item.name, type: item.blob.type })
   );
@@ -78,7 +87,7 @@ export const CompressOption = observer(() => {
     : null;
 
   const setResizeMethod = (method: ResizeMethod) => {
-    homeState.tempOption.resize = {
+    option.resize = {
       method,
       width: undefined,
       height: undefined,
@@ -189,14 +198,14 @@ export const CompressOption = observer(() => {
 
       <section>
         <h4>{locale?.outputFormat}</h4>
-        <Select value={homeState.tempOption.format.target} options={OutputFormats.map((format) => ({ value: format, label: format === "jpg" ? "JPEG" : format.toUpperCase() }))} placeholder={locale?.outputFormatPlaceholder} disabled={disabled} onChange={(value) => { homeState.tempOption.format.target = value as typeof homeState.tempOption.format.target; }} onClear={() => { homeState.tempOption.format.target = undefined; }} />
-        {["jpg", "jpeg"].includes(homeState.tempOption.format.target ?? "") && <label className={style.colorField}><span>{locale?.transparentFillDesc}</span><input type="color" disabled={disabled} value={homeState.tempOption.format.transparentFill} onChange={(event) => { homeState.tempOption.format.transparentFill = event.target.value.toUpperCase(); }} /></label>}
+        <Select value={option.format.target} options={OutputFormats.map((format) => ({ value: format, label: format === "jpg" ? "JPEG" : format.toUpperCase() }))} placeholder={locale?.outputFormatPlaceholder} disabled={disabled} onChange={(value) => { option.format.target = value as typeof option.format.target; }} onClear={() => { option.format.target = undefined; }} />
+        {["jpg", "jpeg"].includes(option.format.target ?? "") && <label className={style.colorField}><span>{locale?.transparentFillDesc}</span><input type="color" disabled={disabled} value={option.format.transparentFill} onChange={(event) => { option.format.transparentFill = event.target.value.toUpperCase(); }} /></label>}
       </section>
 
-      {showJpegOptions && <section><h4>{locale?.jpegLable}</h4><RangeField label={locale?.qualityTitle} value={homeState.tempOption.jpeg.quality} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { homeState.tempOption.jpeg.quality = value; }} />{showJpegExtreme && <label className={style.extremeField}><input type="checkbox" checked={homeState.tempOption.jpeg.extreme} disabled={disabled} onChange={(event) => { homeState.tempOption.jpeg.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label>}</section>}
-      {showPngOptions && <section><h4>{locale?.pngLable}</h4><RangeField label={locale?.colorsDesc} value={homeState.tempOption.png.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { homeState.tempOption.png.colors = value; }} /><RangeField label={locale?.pngDithering} value={homeState.tempOption.png.dithering} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { homeState.tempOption.png.dithering = value; }} /><label className={style.extremeField}><input type="checkbox" checked={homeState.tempOption.png.extreme} disabled={disabled} onChange={(event) => { homeState.tempOption.png.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label></section>}
-      {showGifOptions && <section><h4>{locale?.gifLable}</h4><label className={style.checkField}><input type="checkbox" checked={homeState.tempOption.gif.dithering} disabled={disabled} onChange={(event) => { homeState.tempOption.gif.dithering = event.target.checked; }} /><span>{locale?.gifDithering}</span></label><RangeField label={locale?.colorsDesc} value={homeState.tempOption.gif.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { homeState.tempOption.gif.colors = value; }} /></section>}
-      {showAvifOptions && <section><h4>{locale?.avifLable}</h4><RangeField label={locale?.avifQuality} value={homeState.tempOption.avif.quality} min={1} max={100} step={1} disabled={disabled} onChange={(value) => { homeState.tempOption.avif.quality = value; }} /><RangeField label={locale?.avifSpeed} value={homeState.tempOption.avif.speed} min={1} max={10} step={1} disabled={disabled} onChange={(value) => { homeState.tempOption.avif.speed = value; }} /></section>}
+      {showJpegOptions && <section><h4>{locale?.jpegLable}</h4><RangeField label={locale?.qualityTitle} value={option.jpeg.quality} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { option.jpeg.quality = value; }} />{showJpegExtreme && <label className={style.extremeField}><input type="checkbox" checked={option.jpeg.extreme} disabled={disabled} onChange={(event) => { option.jpeg.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label>}</section>}
+      {showPngOptions && <section><h4>{locale?.pngLable}</h4><RangeField label={locale?.colorsDesc} value={option.png.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { option.png.colors = value; }} /><RangeField label={locale?.pngDithering} value={option.png.dithering} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { option.png.dithering = value; }} /><label className={style.extremeField}><input type="checkbox" checked={option.png.extreme} disabled={disabled} onChange={(event) => { option.png.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label></section>}
+      {showGifOptions && <section><h4>{locale?.gifLable}</h4><label className={style.checkField}><input type="checkbox" checked={option.gif.dithering} disabled={disabled} onChange={(event) => { option.gif.dithering = event.target.checked; }} /><span>{locale?.gifDithering}</span></label><RangeField label={locale?.colorsDesc} value={option.gif.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { option.gif.colors = value; }} /></section>}
+      {showAvifOptions && <section><h4>{locale?.avifLable}</h4><RangeField label={locale?.avifQuality} value={option.avif.quality} min={1} max={100} step={1} disabled={disabled} onChange={(value) => { option.avif.quality = value; }} /><RangeField label={locale?.avifSpeed} value={option.avif.speed} min={1} max={10} step={1} disabled={disabled} onChange={(value) => { option.avif.speed = value; }} /></section>}
     </div>
   );
 });

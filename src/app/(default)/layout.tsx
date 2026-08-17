@@ -1,9 +1,10 @@
 import type { Viewport } from "next";
 import "@/main.scss";
-import zhCN from "@/locales/zh-CN";
-import { createLocaleMetadata } from "@/seo";
+import { rootMetadata } from "@/seo";
 
-export const metadata = createLocaleMetadata("zh-CN", zhCN);
+// 只放公共项：title / description / canonical / openGraph 一律由各页自己声明，
+// 放这里会被子页继承，四个页面就会互相判重
+export const metadata = rootMetadata;
 
 export const viewport: Viewport = {
   width: "device-width",

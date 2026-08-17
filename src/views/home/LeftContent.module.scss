@@ -141,3 +141,33 @@
   .toolbar :global(.button) { padding: 0 10px; font-size: 12px; }
   .resultItem { align-items: start; }
 }
+.cancelledIcon { color: var(--color-text-muted) !important; }
+
+/* 筛选 + 排序条：批量场景里靠它把出问题的图挑出来 */
+.listControls {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  padding: 0 14px 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+.chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.chipsLabel { color: var(--color-text-muted); font-size: 12px; }
+.chip, .chipActive {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 11px;
+  border: 1px solid var(--color-border); border-radius: var(--radius-full);
+  background: var(--color-surface); color: var(--color-text-muted);
+  font-size: 12px; cursor: pointer;
+  transition: border-color .2s var(--ease), background .2s var(--ease), color .2s var(--ease);
+  b { font-weight: 700; font-size: 11px; }
+}
+.chip:hover { border-color: var(--color-secondary); }
+.chipActive { border-color: var(--color-secondary); background: var(--color-action-soft); color: var(--color-secondary); }
+.emptyList { margin: 0; padding: 40px 16px; color: var(--color-text-muted); font-size: 14px; text-align: center; }
+.customBadge {
+  flex: none;
+  padding: 1px 7px;
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-full);
+  color: var(--color-secondary);
+  font-size: 10px; font-style: normal; font-weight: 600;
+}

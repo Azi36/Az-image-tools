@@ -1,25 +1,19 @@
 /**
- * AI 功能共享基建：
- * - ORT 运行时按设备选择：支持 WebGPU 就走 GPU（jsep 版），否则纯 wasm
+ * AI 推理运行时（只在 WorkerAi 里用，别从主线程 import）：
+ * - ORT 运行时按设备选择：支持 WebGPU 就走 GPU，否则纯 wasm
  * - 模型文件用 Cache API 持久缓存，带下载进度
  * - 会话按模型缓存，加载失败不留死缓存，可重试
  */
 
-export type AiProgress =
-  | { stage: "model"; percent: number }
-  | { stage: "run"; percent?: number };
+import { MODEL_CACHE, webGpuAvailable, type AiProgress } from "./ai-shared";
+
+export type { AiProgress };
 
 export type OrtSession = {
   ort: typeof import("onnxruntime-web/wasm");
   session: import("onnxruntime-web").InferenceSession;
   backend: "webgpu" | "wasm";
 };
-
-const MODEL_CACHE = "az-im-models";
-
-export function webGpuAvailable(): boolean {
-  return typeof navigator !== "undefined" && "gpu" in navigator;
-}
 
 /** 真实检测：不仅要有 API，还得拿得到 GPU 适配器 */
 async function hasWebGpuAdapter(): Promise<boolean> {
@@ -32,26 +26,19 @@ async function hasWebGpuAdapter(): Promise<boolean> {
   }
 }
 
-/** 模型是否已经在本地缓存里（用于 UI 显示「已下载」） */
-export async function isModelCached(url: string): Promise<boolean> {
-  try {
-    const cache = await caches.open(MODEL_CACHE);
-    return Boolean(await cache.match(url));
-  } catch {
-    return false;
-  }
-}
+type ModelProgress = (loaded: number, total: number) => void;
 
 async function fetchModel(
   url: string,
-  onPercent?: (percent: number) => void,
+  onProgress?: ModelProgress,
 ): Promise<ArrayBuffer> {
   try {
     const cache = await caches.open(MODEL_CACHE);
     const cached = await cache.match(url);
     if (cached) {
-      onPercent?.(100);
-      return cached.arrayBuffer();
+      const buffer = await cached.arrayBuffer();
+      onProgress?.(buffer.byteLength, buffer.byteLength);
+      return buffer;
     }
   } catch {}
 
@@ -63,6 +50,7 @@ async function fetchModel(
   let buffer: ArrayBuffer;
   if (!response.body || !total) {
     buffer = await response.arrayBuffer();
+    onProgress?.(buffer.byteLength, buffer.byteLength);
   } else {
     const reader = response.body.getReader();
     const chunks: Uint8Array[] = [];
@@ -72,7 +60,7 @@ async function fetchModel(
       if (done) break;
       chunks.push(value);
       loaded += value.byteLength;
-      onPercent?.(Math.min(100, Math.round((loaded * 100) / total)));
+      onProgress?.(loaded, total);
     }
     const bytes = new Uint8Array(loaded);
     let offset = 0;
@@ -136,8 +124,13 @@ export function getSession(
   let pending = sessions.get(modelUrl);
   if (!pending) {
     pending = (async (): Promise<OrtSession> => {
-      const model = await fetchModel(modelUrl, (percent) =>
-        onProgress?.({ stage: "model", percent }),
+      const model = await fetchModel(modelUrl, (loaded, total) =>
+        onProgress?.({
+          stage: "model",
+          percent: total ? Math.min(100, Math.round((loaded * 100) / total)) : 0,
+          loaded,
+          total,
+        }),
       );
       const { ort, eps, backend } = await loadOrt();
       try {

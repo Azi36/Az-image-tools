@@ -26,6 +26,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # 先过质量门禁再构建，别把坏提交发上线
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
       - run: npm run build:pages
       - uses: actions/upload-pages-artifact@v3
         with:
