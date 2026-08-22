@@ -23,6 +23,8 @@ export default function DefaultLayout({
     <html lang="zh-CN">
       <body>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+        {/* 家族站点访问统计：主站托管的一行脚本，按 data-site 归到 im；后端不可达时静默 */}
+        <script src="https://azi36.com/assets/hit.js" data-site="im" defer />
         {children}
       </body>
     </html>
