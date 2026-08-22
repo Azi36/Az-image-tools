@@ -2,10 +2,12 @@ import { observer } from "mobx-react-lite";
 import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
+  ArrowRight,
   CheckCircle2,
   CircleSlash,
   Download,
   Eye,
+  FileSignature,
   FolderPlus,
   LoaderCircle,
   Plus,
@@ -25,13 +27,7 @@ import {
   type ListFilter,
   type ListSort,
 } from "@/states/home";
-import {
-  createDownload,
-  formatSize,
-  getFilesFromHandle,
-  getOutputFileName,
-  getUniqNameOnNames,
-} from "@/functions";
+import { createDownload, formatSize, getFilesFromHandle } from "@/functions";
 import { createImageList, stopAllTasks } from "@/engines/transform";
 import { ERROR_ANIMATED_UNSUPPORTED } from "@/engines/animation";
 import { ERROR_PROCESS_CRASHED, ERROR_UNSUPPORTED_TYPE } from "@/engines/handler";
@@ -67,7 +63,7 @@ function IconButton({ label, disabled, danger = false, onClick, children }: {
   return <button type="button" className={danger ? style.dangerButton : style.iconButton} aria-label={label} title={label} disabled={disabled} onClick={onClick}>{children}</button>;
 }
 
-const ResultItem = observer(({ item, onPreviewUnavailable }: { item: ImageItem; onPreviewUnavailable: () => void }) => {
+const ResultItem = observer(({ item, outputName, onPreviewUnavailable }: { item: ImageItem; outputName: string; onPreviewUnavailable: () => void }) => {
   const completed = Boolean(item.preview && item.compress);
   const hasError = item.status === "error";
   const outputSize = item.compress?.blob.size;
@@ -105,6 +101,10 @@ const ResultItem = observer(({ item, onPreviewUnavailable }: { item: ImageItem; 
           <strong title={item.name}>{item.name}</strong>
           {item.option && <em className={style.customBadge}>{gstate.locale?.itemOption.badge}</em>}
         </div>
+        {/* 改过名才多显示一行，没改就别占地方 */}
+        {outputName !== item.name && (
+          <div className={style.renamed} title={outputName}><ArrowRight size={12} /><span>{outputName}</span></div>
+        )}
         <div className={style.fileMeta}><span>{item.width || "-"} x {item.height || "-"}</span><span>{formatSize(item.blob.size)}</span></div>
       </div>
       <div className={style.outputInfo}>
@@ -118,7 +118,7 @@ const ResultItem = observer(({ item, onPreviewUnavailable }: { item: ImageItem; 
       </div>
       <div className={style.itemActions}>
         <IconButton label={gstate.locale?.itemOption.open ?? "Settings"} onClick={() => { homeState.editingKey = item.key; }}><SlidersHorizontal size={18} /></IconButton>
-        <IconButton label={gstate.locale?.listAction.downloadOne ?? "Download"} disabled={!item.compress} onClick={() => { if (item.compress?.blob) createDownload(getOutputFileName(item, homeState.optionOf(item)), item.compress.blob); }}><Download size={18} /></IconButton>
+        <IconButton label={gstate.locale?.listAction.downloadOne ?? "Download"} disabled={!item.compress} onClick={() => { if (item.compress?.blob) createDownload(homeState.getOutputNames().get(item.key) ?? item.name, item.compress.blob); }}><Download size={18} /></IconButton>
         <IconButton label={gstate.locale?.listAction.removeOne ?? "Remove"} danger onClick={() => homeState.remove(item.key)}><Trash2 size={18} /></IconButton>
       </div>
       {item.processError && (() => {
@@ -198,6 +198,8 @@ export const LeftContent = observer(() => {
   const [zipPercent, setZipPercent] = useState<number | null>(null);
   const [visibleCount, setVisibleCount] = useState(32);
   const visibleItems = homeState.getVisibleItems();
+  // 一次算完整批，序号才不受筛选和排序影响
+  const outputNames = homeState.getOutputNames();
   // 分页看的是筛选后的条数；换筛选/排序要从头开始数
   const totalItems = visibleItems.length;
   const listKey = `${homeState.filter}-${homeState.sort}`;
@@ -236,15 +238,11 @@ export const LeftContent = observer(() => {
     try {
       const jszip = await import("jszip");
       const zip = new jszip.default();
-      const names = new Set<string>();
+      // 和列表里显示的、单张下载拿到的是同一套名字
+      const names = homeState.getOutputNames();
       for (const info of homeState.list.values()) {
         if (!info.compress?.blob) continue;
-        const uniqueName = getUniqNameOnNames(
-          names,
-          getOutputFileName(info, homeState.optionOf(info)),
-        );
-        names.add(uniqueName);
-        zip.file(uniqueName, info.compress.blob);
+        zip.file(names.get(info.key) ?? info.name, info.compress.blob);
       }
       const archive = await zip.generateAsync(
         { type: "blob", compression: "DEFLATE", compressionOptions: { level: 6 } },
@@ -261,6 +259,14 @@ export const LeftContent = observer(() => {
       <div className={style.toolbar}>
         <div>
           <button type="button" className="button buttonPrimary" disabled={disabled} onClick={() => fileRef.current?.click()}><Plus size={18} />{gstate.locale?.listAction.batchAppend}</button>
+          <button
+            type="button"
+            className={`button ${homeState.renameRule.enabled ? style.renameOn : ""}`}
+            onClick={() => { homeState.showRename = true; }}
+          >
+            <FileSignature size={18} />
+            {gstate.locale?.listAction.rename}
+          </button>
           {typeof window.showDirectoryPicker === "function" && (
             <button
               type="button"
@@ -310,6 +316,7 @@ export const LeftContent = observer(() => {
               <ResultItem
                 key={item.key}
                 item={item}
+                outputName={outputNames.get(item.key) ?? item.name}
                 onPreviewUnavailable={() => setToast(gstate.locale?.heif.previewUnavailable ?? "")}
               />
             ))

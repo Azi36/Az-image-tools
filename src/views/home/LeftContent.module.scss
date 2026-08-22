@@ -171,3 +171,22 @@
   color: var(--color-secondary);
   font-size: 10px; font-style: normal; font-weight: 600;
 }
+
+/* 开着批量重命名时按钮亮起来，收着的面板里改了什么一眼能看见 */
+.renameOn {
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+  background: var(--color-action-soft);
+}
+
+.renamed {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  color: var(--color-secondary);
+  font-size: 12px;
+
+  svg { flex: none; }
+  span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

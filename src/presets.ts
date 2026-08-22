@@ -11,7 +11,7 @@ export type Preset = {
 };
 
 export type PresetNames = {
-  balanced: string;
+  default: string;
   wechat: string;
   blog: string;
   sharp: string;
@@ -46,8 +46,9 @@ function derive(partial: PartialOption): CompressOption {
  */
 export const BUILTIN_PRESETS: Array<Preset> = [
   {
-    id: "builtin-balanced",
-    nameKey: "balanced",
+    // 「默认」就是一套未经调整的参数，选择框里第一个、也是初始选中的那个
+    id: "builtin-default",
+    nameKey: "default",
     builtin: true,
     option: derive({}),
   },

@@ -1,86 +1,24 @@
 import style from "./index.module.scss";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import classNames from "classnames";
 import { observer } from "mobx-react-lite";
 import { gstate } from "@/global";
 import { ImageInput } from "../ImageInput";
-import { state } from "./state";
-import { createImageList } from "@/engines/transform";
-import { getFilesFromEntry, getFilesFromHandle } from "@/functions";
 import { sprintf } from "sprintf-js";
 import { Mimes } from "@/mimes";
 import { Images, LockKeyhole } from "lucide-react";
 
-export const UploadCard = observer(() => {
+/**
+ * 空列表时的引导卡片。
+ *
+ * 拖拽本身由整页的监听接管（见 views/home），这里只负责点击选图和高亮，
+ * 免得「有没有图」决定了「能不能拖进来」。
+ */
+export const UploadCard = observer(({ dragActive }: { dragActive?: boolean }) => {
   const fileRef = useRef<HTMLInputElement>(null);
-  const dragRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const dragLeave = () => {
-      state.dragActive = false;
-    };
-    const dragOver = (event: DragEvent) => {
-      event.preventDefault();
-      state.dragActive = true;
-    };
-    const drop = async (event: DragEvent) => {
-      event.preventDefault();
-      state.dragActive = false;
-      const files: Array<File> = [];
-      if (event.dataTransfer?.items) {
-        // https://stackoverflow.com/questions/55658851/javascript-datatransfer-items-not-persisting-through-async-calls
-        const list: Array<Promise<void>> = [];
-        for (const item of event.dataTransfer.items) {
-          if (typeof item.getAsFileSystemHandle === "function") {
-            list.push(
-              (async () => {
-                const handle = await item.getAsFileSystemHandle!();
-                const result = await getFilesFromHandle(handle);
-                files.push(...result);
-              })(),
-            );
-            continue;
-          }
-          if (typeof item.webkitGetAsEntry === "function") {
-            list.push(
-              (async () => {
-                const entry = await item.webkitGetAsEntry();
-                if (entry) {
-                  const result = await getFilesFromEntry(entry);
-                  files.push(...result);
-                }
-              })(),
-            );
-          }
-        }
-        await Promise.all(list);
-      } else if (event.dataTransfer?.files) {
-        const list = event.dataTransfer?.files;
-        for (let index = 0; index < list.length; index++) {
-          const file = list.item(index);
-          if (file) files.push(file);
-        }
-      }
-
-      if (files.length > 0) createImageList(files);
-    };
-
-    const target = dragRef.current!;
-    target.addEventListener("dragover", dragOver);
-    target.addEventListener("dragleave", dragLeave);
-    target.addEventListener("drop", drop);
-
-    return () => {
-      target.removeEventListener("dragover", dragOver);
-      target.removeEventListener("dragleave", dragLeave);
-      target.removeEventListener("drop", drop);
-    };
-  }, []);
 
   return (
-    <div
-      className={classNames(style.container, state.dragActive && style.active)}
-    >
+    <div className={classNames(style.container, dragActive && style.active)}>
       <div className={style.inner}>
         <div className={style.uploadIcon}>
           <Images aria-hidden="true" />
@@ -103,7 +41,6 @@ export const UploadCard = observer(() => {
       <button
         type="button"
         className={style.mask}
-        ref={dragRef}
         aria-label={gstate.locale?.uploadCard.title}
         onClick={() => {
           fileRef.current?.click();

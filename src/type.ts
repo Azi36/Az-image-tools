@@ -31,6 +31,7 @@ export interface LocaleData {
   listAction: {
     batchAppend: string;
     addFolder: string;
+    rename: string;
     clear: string;
     downloadAll: string;
     downloadOne: string;
@@ -38,6 +39,66 @@ export interface LocaleData {
     reCompress: string;
     stop: string;
     packing: string;
+  };
+  dropConfirm: {
+    overlay: string;
+    title: string;
+    /** %1$d 新拖入的文件数，%2$d 列表里已有的图片数 */
+    description: string;
+    append: string;
+    replace: string;
+    cancel: string;
+  };
+  rename: {
+    title: string;
+    hint: string;
+    enable: string;
+    pattern: string;
+    numbering: string;
+    start: string;
+    step: string;
+    padding: string;
+    findReplace: string;
+    find: string;
+    replace: string;
+    regex: string;
+    regexInvalid: string;
+    caseLabel: string;
+    nameCase: string;
+    extCase: string;
+    caseKeep: string;
+    caseLower: string;
+    caseUpper: string;
+    caseCapitalize: string;
+    extLower: string;
+    extUpper: string;
+    perFormat: string;
+    perFormatHint: string;
+    preview: string;
+    previewEmpty: string;
+    apply: string;
+    cancel: string;
+    reset: string;
+    /** 键是 RENAME_TOKENS 里的占位符名 */
+    tokenDesc: Record<string, string>;
+  };
+  /** 折叠面板收起时的一行摘要用的短词 */
+  summary: {
+    none: string;
+    unset: string;
+    keepFormat: string;
+    width: string;
+    height: string;
+    short: string;
+    long: string;
+    crop: string;
+    quality: string;
+    colors: string;
+    dithering: string;
+    speed: string;
+    extreme: string;
+    on: string;
+    off: string;
   };
   columnTitle: {
     status: string;
@@ -111,10 +172,11 @@ export interface LocaleData {
     confirm: string;
     cancel: string;
     remove: string;
+    custom: string;
     limitReached: string;
     saved: string;
     names: {
-      balanced: string;
+      default: string;
       wechat: string;
       blog: string;
       sharp: string;

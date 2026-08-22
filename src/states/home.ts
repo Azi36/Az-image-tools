@@ -1,7 +1,20 @@
 import { CompressOption, ProcessOutput } from "@/engines/ImageBase";
 import { createCompressTask } from "@/engines/transform";
 import { makeAutoObservable, reaction, toJS } from "mobx";
-import { uniqId } from "@/functions";
+import {
+  getOutputFileName,
+  getUniqNameOnNames,
+  splitFileName,
+  uniqId,
+} from "@/functions";
+import {
+  applyRenameRule,
+  DefaultRenameRule,
+  loadRenameRule,
+  normalizeRenameRule,
+  saveRenameRule,
+  type RenameRule,
+} from "@/rename";
 import { DefaultCompressOption, normalizeCompressOption } from "@/options";
 import {
   MAX_USER_PRESETS,
@@ -101,6 +114,9 @@ export class HomeState {
   public filter: ListFilter = "all";
   public sort: ListSort = "default";
   public userPresets: Array<Preset> = loadUserPresets();
+  public renameRule: RenameRule = loadRenameRule();
+  /** 批量重命名面板开着没有 */
+  public showRename: boolean = false;
   /** 正在单独调参的那张图 */
   public editingKey: number | null = null;
   public completedCompressCount: number = 0;
@@ -117,6 +133,66 @@ export class HomeState {
       () => toJS(this.tempOption),
       (opt) => persistOption(opt),
     );
+  }
+
+  /** 存下改好的重命名规则 */
+  setRenameRule(rule: RenameRule) {
+    this.renameRule = normalizeRenameRule(rule);
+    saveRenameRule(toJS(this.renameRule));
+  }
+
+  resetRenameRule() {
+    this.renameRule = structuredClone(DefaultRenameRule);
+    saveRenameRule(this.renameRule);
+  }
+
+  /**
+   * 每张图最终存下来的文件名。
+   *
+   * 序号按添加顺序数（不受筛选、排序影响），重名统一在这里兜一次，
+   * 所以单张下载和打包 zip 拿到的名字永远一致。
+   */
+  getOutputNames(override?: RenameRule): Map<number, string> {
+    const rule = override ?? toJS(this.renameRule);
+    const total = this.list.size;
+    const names = new Set<string>();
+    const result = new Map<number, string>();
+    const now = new Date();
+    let order = 0;
+
+    this.list.forEach((item) => {
+      order += 1;
+      const formatted = getOutputFileName(item, this.optionOf(item));
+      const { name, suffix } = splitFileName(formatted);
+      const unique = getUniqNameOnNames(
+        names,
+        applyRenameRule(rule, {
+          name,
+          ext: suffix,
+          originExt: splitFileName(item.name).suffix,
+          order,
+          total,
+          width: item.compress?.width || item.width,
+          height: item.compress?.height || item.height,
+          size: item.compress?.blob.size ?? item.blob.size,
+          now,
+        }),
+      );
+      names.add(unique);
+      result.set(item.key, unique);
+    });
+
+    return result;
+  }
+
+  /** 当前队列会输出哪几种扩展名，重命名面板按这个列分格式模板 */
+  getOutputFormats(): Array<string> {
+    const formats = new Set<string>();
+    this.list.forEach((item) => {
+      const { suffix } = splitFileName(getOutputFileName(item, this.optionOf(item)));
+      if (suffix) formats.add(suffix.toLowerCase());
+    });
+    return Array.from(formats).sort();
   }
 
   /**
@@ -141,7 +217,8 @@ export class HomeState {
     );
   }
 
-  clear() {
+  /** 只清列表，参数原样留着：拖入新一批替换旧一批时用这个 */
+  clearList() {
     this.list.forEach((item) => revokeItemUrls(item));
     this.list.clear();
     this.filter = "all";
@@ -150,6 +227,10 @@ export class HomeState {
     this.completedPreviewCount = 0;
     this.originSize = 0;
     this.outputSize = 0;
+  }
+
+  clear() {
+    this.clearList();
     this.tempOption = structuredClone(DefaultCompressOption);
     this.option = structuredClone(DefaultCompressOption);
     persistOption(this.option);

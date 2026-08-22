@@ -1,0 +1,39 @@
+.backdrop {
+  position: fixed; inset: 0; z-index: 140;
+  display: grid; place-items: center;
+  padding: 16px;
+  background: var(--color-overlay);
+}
+
+.panel {
+  width: min(420px, 100%);
+  box-sizing: border-box;
+  padding: 22px 20px 18px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-menu);
+
+  strong { color: var(--color-foreground); font-size: 16px; }
+  p { margin: 0; color: var(--color-text-muted); font-size: 13px; line-height: 1.6; }
+}
+
+.icon {
+  display: grid; place-items: center;
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  color: var(--color-secondary);
+  background: var(--color-action-soft);
+}
+
+.actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}

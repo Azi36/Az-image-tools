@@ -1,15 +1,16 @@
 /* ============================================
    Az-im 全站样式基座
    与 azi36.com 主站同源的设计语言：
-   白底 · 高饱和蓝品牌色 · 圆角卡片 · 深色模式
+   白底 · 品牌青 · 圆角卡片 · 深色模式
    ============================================ */
 
 :root {
   --color-primary: #18181b;            /* 强调文字 */
   --color-on-primary: #ffffff;
-  --color-secondary: #1e40d8;          /* 品牌蓝，同主站 --brand */
-  --color-secondary-hover: #1a35b0;
-  --color-action-soft: #eef1fc;        /* 品牌浅底，同主站 --brand-light */
+  --color-secondary: #016c73;          /* 品牌青，同主站 --brand */
+  --color-on-secondary: #ffffff;       /* 压在品牌色上的字。深色下品牌色是浅青，白字会看不见，所以单列一个变量 */
+  --color-secondary-hover: #0b5459;
+  --color-action-soft: #e1f4f5;        /* 品牌浅底，同主站 --brand-light */
   --color-surface: #ffffff;
   --color-surface-subtle: #fafafa;
   --color-surface-muted: #f4f4f5;
@@ -25,11 +26,16 @@
   --color-destructive: #c2414b;
   --color-overlay: rgba(24, 24, 27, .5);
   --color-nav-bg: rgba(244, 244, 245, .72);   /* 导航胶囊底，同主站 --nav-bg */
+  --color-header-bg: rgba(255, 255, 255, .82); /* 页头毛玻璃底，同主站 --header-bg */
+  --color-border-light: #f0f0f2;       /* 比 --color-border 再浅一档，同主站 --border-light；页头和导航胶囊用它 */
+  --color-text-subtle: #a1a1aa;        /* 最弱的一档文字，同主站 --text-3 */
   --shadow-menu: 0 8px 30px rgba(0, 0, 0, .12);
-  --grad-brand: linear-gradient(135deg, #1e40d8, #6d5ae0);
-  --blob-a: #c7d4ff;
-  --blob-b: #e8ddff;
-  --blob-c: #ffe3d3;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .04), 0 4px 14px rgba(0, 0, 0, .05);  /* 同主站 --shadow-card */
+  --shadow-header: 0 4px 20px rgba(12, 16, 36, .06);   /* 页头滚动后的分隔阴影 */
+  --grad-brand: linear-gradient(135deg, #016c73, #006b58);
+  --blob-a: #bee9ed;
+  --blob-b: #cceafa;
+  --blob-c: #dbe9fe;
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -54,12 +60,24 @@
   --dark-surface: #1d1e22; --dark-surface-subtle: #17181b; --dark-surface-muted: #26272d;
   --dark-foreground: #e9e9ec; --dark-text-muted: #a6a6ae;
   --dark-border: #2f3037; --dark-border-strong: #4b4c55; --dark-action-soft: #1c2440;
+  --dark-border-light: #26272d; --dark-text-subtle: #82828c;
   --dark-success-soft: #103021; --dark-warning-soft: #33270e;
-  --dark-blob-a: #232f5e; --dark-blob-b: #2b2350; --dark-blob-c: #3a2a20;
+  --dark-blob-a: #003b3f; --dark-blob-b: #0f3343; --dark-blob-c: #27364d;
+
+  /* 深色下的品牌色。以前这里是空的 —— dark-tokens 没覆盖 --color-secondary，
+     于是浅色的品牌色被原样带进深色，#1e40d8 压在 #17181b 上只有 2.35:1
+     （APCA 更狠，Lc 只有 -16），按钮和链接基本看不见。2026-08-22 补上。 */
+  --dark-secondary: #a1dadf; --dark-secondary-hover: #c5e9ec;
+  --dark-on-secondary: #17181b;   /* 深色下品牌色是浅青，得用页面暗底当字色：11.51:1 / Lc 77 */
+  --dark-grad-brand: linear-gradient(135deg, #00787f, #007b66);
 }
 
 @mixin dark-tokens {
   --color-primary: var(--dark-foreground);
+  --color-secondary: var(--dark-secondary);
+  --color-on-secondary: var(--dark-on-secondary);
+  --color-secondary-hover: var(--dark-secondary-hover);
+  --grad-brand: var(--dark-grad-brand);
   --color-surface: var(--dark-surface);
   --color-surface-subtle: var(--dark-surface-subtle);
   --color-surface-muted: var(--dark-surface-muted);
@@ -73,7 +91,13 @@
   --color-warning-soft: var(--dark-warning-soft);
   --color-overlay: rgba(0, 0, 0, .6);
   --color-nav-bg: rgba(38, 39, 45, .7);
+  --color-header-bg: rgba(23, 24, 27, .82);   /* 跟页面底同色，不比正文亮 */
+  --color-border-light: var(--dark-border-light);
+  --color-text-subtle: var(--dark-text-subtle);
   --shadow-menu: 0 8px 30px rgba(0, 0, 0, .55);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .4);
+  /* 主站深色下没换这条阴影，浅色值压在暗底上等于没有；这里换成不透明度够高的一版 */
+  --shadow-header: 0 4px 20px rgba(0, 0, 0, .45);
   --blob-a: var(--dark-blob-a);
   --blob-b: var(--dark-blob-b);
   --blob-c: var(--dark-blob-c);
@@ -115,8 +139,8 @@ img { max-width: 100%; }
 /* Primary action: filled with the accent color.
    .buttonAccent is kept as an alias so existing call sites
    share the exact same visual language. */
-.buttonPrimary, .buttonAccent { color: #fff; background: var(--color-secondary); border-color: var(--color-secondary); }
-.buttonPrimary:hover:not(:disabled), .buttonAccent:hover:not(:disabled) { color: #fff; background: var(--color-secondary-hover); border-color: var(--color-secondary-hover); }
+.buttonPrimary, .buttonAccent { color: var(--color-on-secondary); background: var(--color-secondary); border-color: var(--color-secondary); }
+.buttonPrimary:hover:not(:disabled), .buttonAccent:hover:not(:disabled) { color: var(--color-on-secondary); background: var(--color-secondary-hover); border-color: var(--color-secondary-hover); }
 .buttonLarge { min-height: 50px; padding: 0 24px; }
 
 :focus-visible { outline: 3px solid color-mix(in srgb, var(--color-secondary) 45%, transparent); outline-offset: 2px; }

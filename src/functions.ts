@@ -174,6 +174,51 @@ export async function getFilesFromHandle(
 }
 
 /**
+ * 从一次 drop 事件里取出所有文件，文件夹会被递归展开。
+ *
+ * UploadCard 和整页拖拽都用这一份：以前只有 UploadCard 挂了监听，
+ * 列表里一有图它就被卸载，再拖文件进来浏览器就直接把图打开了。
+ */
+export async function getFilesFromDataTransfer(
+  dataTransfer: DataTransfer | null,
+): Promise<Array<File>> {
+  const files: Array<File> = [];
+  if (!dataTransfer) return files;
+
+  if (dataTransfer.items.length > 0) {
+    // https://stackoverflow.com/questions/55658851/javascript-datatransfer-items-not-persisting-through-async-calls
+    const pending: Array<Promise<void>> = [];
+    for (const item of dataTransfer.items) {
+      if (item.kind !== "file") continue;
+      if (typeof item.getAsFileSystemHandle === "function") {
+        pending.push(
+          (async () => {
+            const handle = await item.getAsFileSystemHandle!();
+            if (handle) files.push(...(await getFilesFromHandle(handle)));
+          })(),
+        );
+        continue;
+      }
+      if (typeof item.webkitGetAsEntry === "function") {
+        const entry = item.webkitGetAsEntry();
+        if (entry) pending.push(getFilesFromEntry(entry).then((result) => { files.push(...result); }));
+        continue;
+      }
+      const file = item.getAsFile();
+      if (file) files.push(file);
+    }
+    await Promise.all(pending);
+    if (files.length > 0) return files;
+  }
+
+  for (let index = 0; index < dataTransfer.files.length; index++) {
+    const file = dataTransfer.files.item(index);
+    if (file) files.push(file);
+  }
+  return files;
+}
+
+/**
  * Get file suffix by lowercase
  * @param fileName
  */

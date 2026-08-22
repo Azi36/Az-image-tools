@@ -54,6 +54,11 @@
   100% { transform: scale(1); }
 }
 
+/* 页头在小屏上寸土寸金，字标先让位，图标留着认人（同主站 @640 的处理） */
+@media (max-width: 640px) {
+  .container .wordmark.compact { display: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .container .icon,
   .container .icon:hover path,

@@ -1,4 +1,6 @@
-.header { position: sticky; top: 0; z-index: 40; height: 60px; padding: 0 max(24px, calc((100vw - 1180px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 20px; background: color-mix(in srgb, var(--color-surface) 82%, transparent); border-bottom: 1px solid var(--color-border); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.header { position: sticky; top: 0; z-index: 50; height: 60px; padding: 0 max(24px, calc((100vw - 1180px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 20px; background: var(--color-header-bg); border-bottom: 1px solid var(--color-border-light); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: box-shadow .3s var(--ease); }
+/* 滚过 8px 就浮起来一层阴影，和下面的内容分开（同主站 .site-header.scrolled） */
+.scrolled { box-shadow: var(--shadow-header); }
 .brand { text-decoration: none; }
 
 /* 主站同款分段式导航：胶囊容器 + 白色滑块高亮 */
@@ -6,32 +8,50 @@
   position: absolute; left: 50%; transform: translateX(-50%);
   display: flex; gap: 2px; padding: 4px;
   background: var(--color-nav-bg);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-full);
 
-  a { padding: 6px 16px; border-radius: var(--radius-full); color: var(--color-text-muted); text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap; transition: color .2s var(--ease), background .2s var(--ease); }
+  a { padding: 5px 16px; border-radius: var(--radius-full); color: var(--color-text-muted); text-decoration: none; font-size: 14px; white-space: nowrap; transition: color .2s var(--ease), background .2s var(--ease); }
   a:hover { color: var(--color-primary); }
-  a.active { color: var(--color-primary); background: var(--color-surface); box-shadow: 0 1px 4px rgba(0, 0, 0, .08); }
+  /* 当前项走品牌色，底色取页面底——胶囊底比页面底深一点，滑块才浮得出来 */
+  a.active { color: var(--color-secondary); background: var(--color-background); box-shadow: var(--shadow-card); font-weight: 600; }
 }
 
-.navSide { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-.navStatus { display: inline-flex; align-items: center; gap: 6px; color: var(--color-text-muted); font-size: 13px; white-space: nowrap; em { font-style: normal; } }
-.themeToggle { width: 38px; height: 38px; display: grid; place-items: center; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--color-text-muted); transition: color .2s var(--ease), background .2s var(--ease); }
+.navSide { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.navStatus { display: inline-flex; align-items: center; gap: 7px; color: var(--color-text-subtle); font-size: 12.5px; white-space: nowrap; }
+/* 表情每 8 秒换一张脸，淡出淡入，别抢戏 */
+.navEmo { font-style: normal; font-size: 14px; line-height: 1; transition: opacity .4s ease; }
+.navEmoDim { opacity: 0; }
+.themeToggle { width: 34px; height: 34px; padding: 0; display: grid; place-items: center; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--color-text-muted); cursor: pointer; transition: color .2s var(--ease), background .2s var(--ease); }
 .themeToggle:hover { color: var(--color-primary); background: var(--color-surface-muted); }
+.themeToggle svg { display: block; }
+.themeToggle:active svg { transform: scale(.85) rotate(-12deg); transition: transform .15s var(--ease); }
 
 @media (max-width: 980px) {
   .navStatus { display: none; }
 }
 
 @media (max-width: 680px) {
-  .header { padding: 0 12px; gap: 10px; }
+  .header { padding: 0 14px; gap: 10px; }
   /* 胶囊改为可横滑，保证右侧主题切换和头像永远在屏内 */
   .mainNav {
     position: static; transform: none; margin-left: auto;
     flex: 1; min-width: 0; overflow-x: auto;
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
-    a { padding: 6px 11px; font-size: 13px; }
+    a { padding: 5px 10px; font-size: 13px; }
   }
-  .navSide { margin-left: 0; flex: none; gap: 6px; }
+  .navSide { margin-left: 0; flex: none; gap: 4px; }
+  .themeToggle { width: 30px; height: 30px; }
+}
+
+@media (max-width: 430px) {
+  .header { gap: 6px; }
+  .mainNav a { padding: 4px 7px; font-size: 12px; }
+  .themeToggle { width: 26px; height: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header, .themeToggle, .navEmo { transition: none; }
+  .themeToggle:active svg { transform: none; }
 }

@@ -1,19 +1,9 @@
 .container {
   display: grid;
-  gap: 22px;
 
-  section {
-    border-top: 1px solid var(--color-border);
-    padding-top: 18px;
-  }
-
-  section:first-child {
-    border-top: 0;
-    padding-top: 0;
-  }
-
+  /* 分组标题由 Collapsible 自己排版，这里只负责把边距清干净 */
   h4 {
-    margin: 0 0 12px;
+    margin: 0;
     color: var(--color-primary);
     font-size: 14px;
   }

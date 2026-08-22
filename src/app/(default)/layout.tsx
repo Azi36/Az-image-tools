@@ -9,7 +9,7 @@ export const metadata = rootMetadata;
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#1e40d8",
+  themeColor: "#016c73",
 };
 
 // 与主站同款的主题引导：首帧前恢复 azi-theme，避免深色模式闪白

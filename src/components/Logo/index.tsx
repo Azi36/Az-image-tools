@@ -4,6 +4,8 @@ import { observer } from "mobx-react-lite";
 interface LogoProps {
   iconSize?: number;
   title?: string;
+  /** 小屏只留图标。页头空间紧张要开，页脚有的是地方，默认关 */
+  compact?: boolean;
 }
 
 /**
@@ -11,7 +13,7 @@ interface LogoProps {
  * 主站是「山峰 A + 小太阳」，图片站是「山峦 + 小太阳」——
  * 经典图片图标的构图，一眼认出是一家人
  */
-export const Logo = observer(({ iconSize = 26, title = "Az-im" }: LogoProps) => {
+export const Logo = observer(({ iconSize = 26, title = "Az-im", compact = false }: LogoProps) => {
   return (
     <div className={style.container} aria-label={title}>
       <span
@@ -41,7 +43,7 @@ export const Logo = observer(({ iconSize = 26, title = "Az-im" }: LogoProps) => 
           <circle cx="12.5" cy="13.5" r="3.4" fill="#ffb02e" />
         </svg>
       </span>
-      <span className={style.wordmark}>
+      <span className={compact ? `${style.wordmark} ${style.compact}` : style.wordmark}>
         Az<b>im</b>
       </span>
     </div>

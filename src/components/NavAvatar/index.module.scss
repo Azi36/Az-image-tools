@@ -1,25 +1,28 @@
+/* 和主站 .nav-gh 同规格：34 的圆形热区里放 26 的头像，hover 只亮底不动 */
 .avatar {
-  display: block;
-  width: 30px;
-  height: 30px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
   padding: 0;
-  border: 1px solid var(--color-border);
+  border: 0;
   border-radius: 50%;
   background: transparent;
-  overflow: hidden;
+  color: var(--color-text-muted);
   cursor: pointer;
   touch-action: none; /* 拖拽甩头像时别被页面滚动抢走 */
-  transition: transform .25s var(--ease);
+  transition: color .2s var(--ease), background .2s var(--ease);
   /* 狂点时别把周围文字全选中了 */
   -webkit-user-select: none;
   user-select: none;
 
-  img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  img { display: block; width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
 }
 
-.avatar:hover { transform: rotate(-8deg) scale(1.08); }
+.avatar:hover { color: var(--color-primary); background: var(--color-surface-muted); }
 
-.boom { animation: avatarPop .5s var(--ease); }
+/* 爆炸动画落在头像本身，别把 hover 的圆底一起放大 */
+.boom img { animation: avatarPop .5s var(--ease); }
 
 @keyframes avatarPop {
   30% { transform: scale(1.4) rotate(-10deg); }
@@ -41,7 +44,12 @@
   color: var(--color-primary);
 }
 
+@media (max-width: 430px) {
+  .avatar { width: 28px; height: 28px; }
+  .avatar img { width: 22px; height: 22px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .avatar, .avatar:hover { transition: none; transform: none; }
-  .boom { animation: none; }
+  .avatar { transition: none; }
+  .boom img { animation: none; }
 }

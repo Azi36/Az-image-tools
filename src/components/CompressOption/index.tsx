@@ -5,7 +5,8 @@ import { gstate } from "@/global";
 import { getImageMime, Mimes, OutputFormats } from "@/mimes";
 import { MAX_CANVAS_DIMENSION, PAPER_SIZES } from "@/engines/ImageBase";
 import { Select } from "@/components/Select";
-import { getCompressionOptionVisibility } from "@/options";
+import { Collapsible } from "@/components/Collapsible";
+import { DefaultCompressOption, getCompressionOptionVisibility } from "@/options";
 import type { CompressOption as CompressOptionValue } from "@/engines/ImageBase";
 
 type ResizeMethod = CompressOptionValue["resize"]["method"];
@@ -65,6 +66,7 @@ export const CompressOption = observer(({ value, editable }: CompressOptionProps
   const option = value ?? homeState.tempOption;
   const disabled = editable ? false : homeState.hasTaskRunning();
   const locale = gstate.locale?.optionPannel;
+  const brief = gstate.locale?.summary;
   const resize = option.resize;
   const resizeMethod = resize.method;
   const targetFormat = option.format.target;
@@ -165,10 +167,29 @@ export const CompressOption = observer(({ value, editable }: CompressOptionProps
     }
   }
 
+  // 收起时顶在标题右边的一行摘要：不展开也知道这一档现在是什么设置
+  const unset = brief?.unset ?? "";
+  const resizeSummary = (() => {
+    if (!resizeMethod) return brief?.none ?? "";
+    if (resizeMethod === "fitWidth") return `${brief?.width} ${resize.width ?? unset}`;
+    if (resizeMethod === "fitHeight") return `${brief?.height} ${resize.height ?? unset}`;
+    if (resizeMethod === "scalePercent") return resize.percent ? `${resize.percent}%` : unset;
+    if (resizeMethod === "setShort") return `${brief?.short} ${resize.short ?? unset}`;
+    if (resizeMethod === "setLong") return `${brief?.long} ${resize.long ?? unset}`;
+    if (resizeMethod === "setCropRatio") return `${brief?.crop} ${resize.cropWidthRatio ?? unset}:${resize.cropHeightRatio ?? unset}`;
+    if (resizeMethod === "setCropSize") return `${brief?.crop} ${resize.cropWidthSize ?? unset}×${resize.cropHeightSize ?? unset}`;
+    const paper = preset ? PAPER_SIZES[preset.paperSize] : undefined;
+    const orientation = preset?.orientation === "landscape" ? locale?.presetLandscape : locale?.presetPortrait;
+    return `${paper?.label ?? ""} ${orientation ?? ""}`.trim();
+  })();
+  const formatSummary = targetFormat
+    ? (targetFormat === "jpg" ? "JPEG" : targetFormat.toUpperCase())
+    : brief?.keepFormat ?? "";
+  const extremeTag = (on: boolean) => (on ? ` · ${brief?.extreme}` : "");
+
   return (
     <div className={style.container}>
-      <section>
-        <h4>{locale?.resizeLable}</h4>
+      <Collapsible title={locale?.resizeLable ?? ""} summary={resizeSummary} marked={resizeMethod !== undefined}>
         <Select value={resizeMethod} options={resizeOptions} placeholder={locale?.resizePlaceholder} disabled={disabled} onChange={(value) => setResizeMethod(value as ResizeMethod)} onClear={() => setResizeMethod(undefined)} />
         {resizeField && <div className={style.fieldGap}>{resizeField}</div>}
         {resizeMethod === "setCropSize" && (
@@ -194,18 +215,17 @@ export const CompressOption = observer(({ value, editable }: CompressOptionProps
             {presetWarning && <div className={style.warning}><span>{locale?.presetCropWarning}</span><button type="button" onClick={() => { preset.reference = preset.reference === "width" ? "height" : "width"; }}>{locale?.presetSwitchRef}</button><button type="button" onClick={() => setResizeMethod(undefined)}>{locale?.presetCancelCrop}</button></div>}
           </div>
         )}
-      </section>
+      </Collapsible>
 
-      <section>
-        <h4>{locale?.outputFormat}</h4>
+      <Collapsible title={locale?.outputFormat ?? ""} summary={formatSummary} marked={targetFormat !== undefined}>
         <Select value={option.format.target} options={OutputFormats.map((format) => ({ value: format, label: format === "jpg" ? "JPEG" : format.toUpperCase() }))} placeholder={locale?.outputFormatPlaceholder} disabled={disabled} onChange={(value) => { option.format.target = value as typeof option.format.target; }} onClear={() => { option.format.target = undefined; }} />
         {["jpg", "jpeg"].includes(option.format.target ?? "") && <label className={style.colorField}><span>{locale?.transparentFillDesc}</span><input type="color" disabled={disabled} value={option.format.transparentFill} onChange={(event) => { option.format.transparentFill = event.target.value.toUpperCase(); }} /></label>}
-      </section>
+      </Collapsible>
 
-      {showJpegOptions && <section><h4>{locale?.jpegLable}</h4><RangeField label={locale?.qualityTitle} value={option.jpeg.quality} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { option.jpeg.quality = value; }} />{showJpegExtreme && <label className={style.extremeField}><input type="checkbox" checked={option.jpeg.extreme} disabled={disabled} onChange={(event) => { option.jpeg.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label>}</section>}
-      {showPngOptions && <section><h4>{locale?.pngLable}</h4><RangeField label={locale?.colorsDesc} value={option.png.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { option.png.colors = value; }} /><RangeField label={locale?.pngDithering} value={option.png.dithering} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { option.png.dithering = value; }} /><label className={style.extremeField}><input type="checkbox" checked={option.png.extreme} disabled={disabled} onChange={(event) => { option.png.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label></section>}
-      {showGifOptions && <section><h4>{locale?.gifLable}</h4><label className={style.checkField}><input type="checkbox" checked={option.gif.dithering} disabled={disabled} onChange={(event) => { option.gif.dithering = event.target.checked; }} /><span>{locale?.gifDithering}</span></label><RangeField label={locale?.colorsDesc} value={option.gif.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { option.gif.colors = value; }} /></section>}
-      {showAvifOptions && <section><h4>{locale?.avifLable}</h4><RangeField label={locale?.avifQuality} value={option.avif.quality} min={1} max={100} step={1} disabled={disabled} onChange={(value) => { option.avif.quality = value; }} /><RangeField label={locale?.avifSpeed} value={option.avif.speed} min={1} max={10} step={1} disabled={disabled} onChange={(value) => { option.avif.speed = value; }} /></section>}
+      {showJpegOptions && <Collapsible title={locale?.jpegLable ?? ""} summary={`${brief?.quality} ${option.jpeg.quality}${extremeTag(option.jpeg.extreme)}`} marked={option.jpeg.quality !== DefaultCompressOption.jpeg.quality || option.jpeg.extreme}><RangeField label={locale?.qualityTitle} value={option.jpeg.quality} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { option.jpeg.quality = value; }} />{showJpegExtreme && <label className={style.extremeField}><input type="checkbox" checked={option.jpeg.extreme} disabled={disabled} onChange={(event) => { option.jpeg.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label>}</Collapsible>}
+      {showPngOptions && <Collapsible title={locale?.pngLable ?? ""} summary={`${option.png.colors} ${brief?.colors} · ${brief?.dithering} ${option.png.dithering}${extremeTag(option.png.extreme)}`} marked={option.png.colors !== DefaultCompressOption.png.colors || option.png.dithering !== DefaultCompressOption.png.dithering || option.png.extreme}><RangeField label={locale?.colorsDesc} value={option.png.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { option.png.colors = value; }} /><RangeField label={locale?.pngDithering} value={option.png.dithering} min={0} max={1} step={0.01} disabled={disabled} onChange={(value) => { option.png.dithering = value; }} /><label className={style.extremeField}><input type="checkbox" checked={option.png.extreme} disabled={disabled} onChange={(event) => { option.png.extreme = event.target.checked; }} /><span><b>{locale?.extremeMode}</b><small>{locale?.extremeModeHint}</small></span></label></Collapsible>}
+      {showGifOptions && <Collapsible title={locale?.gifLable ?? ""} summary={`${option.gif.colors} ${brief?.colors} · ${brief?.dithering} ${option.gif.dithering ? brief?.on : brief?.off}`} marked={option.gif.colors !== DefaultCompressOption.gif.colors || option.gif.dithering}><label className={style.checkField}><input type="checkbox" checked={option.gif.dithering} disabled={disabled} onChange={(event) => { option.gif.dithering = event.target.checked; }} /><span>{locale?.gifDithering}</span></label><RangeField label={locale?.colorsDesc} value={option.gif.colors} min={2} max={256} step={1} disabled={disabled} onChange={(value) => { option.gif.colors = value; }} /></Collapsible>}
+      {showAvifOptions && <Collapsible title={locale?.avifLable ?? ""} summary={`${brief?.quality} ${option.avif.quality} · ${brief?.speed} ${option.avif.speed}`} marked={option.avif.quality !== DefaultCompressOption.avif.quality || option.avif.speed !== DefaultCompressOption.avif.speed}><RangeField label={locale?.avifQuality} value={option.avif.quality} min={1} max={100} step={1} disabled={disabled} onChange={(value) => { option.avif.quality = value; }} /><RangeField label={locale?.avifSpeed} value={option.avif.speed} min={1} max={10} step={1} disabled={disabled} onChange={(value) => { option.avif.speed = value; }} /></Collapsible>}
     </div>
   );
 });

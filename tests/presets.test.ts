@@ -20,6 +20,12 @@ test("every builtin preset is already a normalized, valid option", () => {
   }
 });
 
+test("「默认」预设就是一套没动过的参数", () => {
+  const fallback = BUILTIN_PRESETS[0];
+  assert.equal(fallback.id, "builtin-default");
+  assert.equal(sameOption(fallback.option, normalizeCompressOption(DefaultCompressOption)), true);
+});
+
 test("builtin presets are actually distinct from each other", () => {
   const seen = new Set<string>();
   for (const preset of BUILTIN_PRESETS) {
@@ -42,8 +48,8 @@ test("sameOption ignores key order, not values", () => {
 });
 
 test("findMatchingPreset spots both builtin and user presets", () => {
-  const balanced = BUILTIN_PRESETS.find((item) => item.id === "builtin-balanced")!;
-  assert.equal(findMatchingPreset(balanced.option, [])?.id, "builtin-balanced");
+  const fallback = BUILTIN_PRESETS.find((item) => item.id === "builtin-default")!;
+  assert.equal(findMatchingPreset(fallback.option, [])?.id, "builtin-default");
 
   const custom = {
     id: "user-1",
